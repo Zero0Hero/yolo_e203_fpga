@@ -1,0 +1,6 @@
+﻿  yolo_int8.cpp
+F:\VS\hls_yolo\yolo_int8.cpp(21,52): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+F:\VS\hls_yolo\yolo_int8.cpp(101,6): warning C4101: “grid_x”: 未引用的局部变量
+F:\VS\hls_yolo\yolo_int8.cpp(101,14): warning C4101: “grid_y”: 未引用的局部变量
+F:\VS\hls_yolo\yolo_int8.cpp(217,16): warning C4244: “初始化”: 从“LONGLONG”转换到“long”，可能丢失数据
+  hls_yolo.vcxproj -> F:\VS\hls_yolo\Debug\hls_yolo.exe

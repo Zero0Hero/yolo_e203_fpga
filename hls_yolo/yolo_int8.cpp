@@ -179,7 +179,7 @@ int main()
 	static DTYPE yout9[HW5 + 2][HW5 + 2][C5] = { 0 };
 	static DTYPE yout10[HW5 + 2][HW5 + 2][C5] = { 0 };
 
-	std::cout << "\nTEMPLATE - initialization\n";
+
 	static DTYPE img[OH][OW][3] = {0};
 	static DTYPE imgin[IMGHW + 2][IMGHW + 2][3] = {0};
 	static float modelout[HWOUT][HWOUT][COUT] = { 0 };
@@ -188,13 +188,20 @@ int main()
     //		yout6, yout7, yout8, yout9, yout10, modelout);
 
 	static unsigned short HDMIF[OH][OH]={0};
+	float boxes[MAX_BOXNUM][NUM_CLASS + 5] = {0};
+	float nmsboxes[MAX_BOXNUM][NUM_CLASS + 5] = { 0 };
+
+	std::cout << "\nTEMPLATE - initialization\n";
+	// backbone 通过HLS加速部分
 	yolo_net(m1, img, imgin, yout1, yout2, yout3, yout4, yout5,
 			yout6, yout7, yout8, yout9, yout10, modelout);
-	float boxes[MAX_BOXNUM][NUM_CLASS + 5] = {0};
+	// head 软件实现部分
 	yolo_head(modelout, boxes);
-	float nmsboxes[MAX_BOXNUM][NUM_CLASS + 5] = { 0 };
+	// 从结果中解析除box
 	NMS(boxes, nmsboxes);
+	// print
 	boxprint(nmsboxes);
+
     std::cout <<"\nTEMPLATE - done once\n";
 
     return 0;

@@ -4,8 +4,7 @@
 #include "defines.h"
 #include "pic_fpga.h"
 #include "cmath"
-#include "windows.h"
-#include <time.h>
+
 /*
  * Anchors
  */
@@ -123,10 +122,8 @@ int yolo_head(float out_data[HWOUT][HWOUT][COUT], float boxes[MAX_BOXNUM][NUM_CL
 					h = out_data[i][j][k * (NUM_CLASS + 5) + 3];
 					x = (sigmoid(x) + j + 0) * ZOOM;
 					y = (sigmoid(y) + i + 0) * ZOOM;
-					//w = expf(w) * anchors[k][0];
-					//h = expf(h) * anchors[k][1];
-					w = 2*sigmoid(w) * anchors[k][0];
-					h = 2*sigmoid(h) * anchors[k][1];
+					w = 8*sigmoid(w) * anchors[k][0];
+					h = 8*sigmoid(h) * anchors[k][1];
 					x1 = (x - w / 2);
 					x2 = (x + w / 2);
 					y1 = y - h / 2;
@@ -156,9 +153,9 @@ void boxprint(float nmsboxes[MAX_BOXNUM][NUM_CLASS + 5])
 		if (nmsboxes[i][4] > CONF_THRESHOLD)
 		{
 			if (nmsboxes[i][5] > nmsboxes[i][6])
-				printf("-masked");
+				printf("-1");
 			else 
-				printf("-nomask");
+				printf("-2");
 			printf("-box: conf:%.3f (%.2f,%.2f) (%.2f,%.2f)\n",
 				nmsboxes[i][4], nmsboxes[i][0], nmsboxes[i][1], nmsboxes[i][2], nmsboxes[i][3]);
 		}
@@ -168,9 +165,6 @@ void boxprint(float nmsboxes[MAX_BOXNUM][NUM_CLASS + 5])
 
 int main()
 {
-	int i = 0;
-	int begintime, endtime;
-	LARGE_INTEGER _start = { 0 }, _end = { 0 };
 	static DTYPE yout1[HW1 + 2][HW1 + 2][C1] = { 0 };
 	static DTYPE yout2[HW1 + 2][HW1 + 2][C1] = { 0 };
 	static DTYPE yout3[HW2 + 2][HW2 + 2][C2] = { 0 };
@@ -184,38 +178,16 @@ int main()
 	static DTYPE yout10[HW5 + 2][HW5 + 2][C5] = { 0 };
 
 	std::cout << "\nTEMPLATE - initialization\n";
-	static DTYPE img[OH][OW][3] = {0};
-	static DTYPE imgin[IMGHW + 2][IMGHW + 2][3] = {0};
-	static float modelout[HWOUT][HWOUT][COUT] = { 0 };
-    //img_pre_process(m1, imgin);
-   //yolo_net_test(imgin, yout1, yout2, yout3, yout4, yout5,
-    //		yout6, yout7, yout8, yout9, yout10, modelout);
-	
-	begintime = clock();
-	__asm {
-		rdtsc
-		mov dword ptr[_start.LowPart], eax
-		mov dword ptr[_start.HighPart], edx
-	}
-	while (i++ < 10){
-		float nmsboxes[MAX_BOXNUM][NUM_CLASS + 5] = { 0 };
-		unsigned short HDMIF[OH][OH] = { 0 };
-		float boxes[MAX_BOXNUM][NUM_CLASS + 5] = { 0 };
-		yolo_net(m1, HDMIF, img, imgin, yout1, yout2, yout3, yout4, yout5,
-				yout6, yout7, yout8, yout9, yout10, modelout);
-		yolo_head(modelout, boxes);
-		NMS(boxes, nmsboxes);
-		if(i==1)boxprint(nmsboxes);
-	}
-	__asm {
-		rdtsc
-		mov dword ptr[_end.LowPart], eax
-		mov dword ptr[_end.HighPart], edx
-	}
-	endtime = clock();
-	
-	long interval = (_end.QuadPart - _start.QuadPart);
-	printf("\n\nRunning Time (10 times)：%dms\n", endtime - begintime);
+    DTYPE imgin[IMGHW + 2][IMGHW + 2][3] = {0};
+	DTYPE modelout[HWOUT][HWOUT][COUT] = { 0 };
+    img_pre_process(m1, imgin);
+    yolo_net(imgin, yout1, yout2, yout3, yout4, yout5,
+    		yout6, yout7, yout8, yout9, yout10, modelout);
+	float boxes[MAX_BOXNUM][NUM_CLASS + 5] = {0};
+	yolo_head(modelout, boxes);
+	float nmsboxes[MAX_BOXNUM][NUM_CLASS + 5] = { 0 };
+	NMS(boxes, nmsboxes);
+	boxprint(nmsboxes);
     std::cout <<"\nTEMPLATE - done once\n";
 
     return 0;

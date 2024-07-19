@@ -155,9 +155,9 @@ void boxprint(float nmsboxes[MAX_BOXNUM][NUM_CLASS + 5])
 		if (nmsboxes[i][4] > CONF_THRESHOLD)
 		{
 			if (nmsboxes[i][5] > nmsboxes[i][6])
-				printf("-masked");
+				printf("-1");
 			else 
-				printf("-nomask");
+				printf("-2");
 			printf("-box: conf:%.3f (%.2f,%.2f) (%.2f,%.2f)\n",
 				nmsboxes[i][4], nmsboxes[i][0], nmsboxes[i][1], nmsboxes[i][2], nmsboxes[i][3]);
 		}
